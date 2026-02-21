@@ -1,26 +1,16 @@
 #!/usr/bin/env bash
-# set -e ensures the script fails-fast if a command breaks
 set -e
 
-APP_NAME="{{APP_NAME}}"
-PORT="{{PORT}}"
+# Dynamically find the image name in lowercase
+IMAGE_URL="ghcr.io/$(echo "${GITHUB_REPOSITORY}" | tr '[A-Z]' '[a-z]'):latest"
+APP_NAME="test-node"
 
-# Generate the same registry URL used in the build step
-IMAGE_URL="ghcr.io/$(echo ${GITHUB_REPOSITORY} | tr '[A-Z]' '[a-z]'):latest"
-
-echo "🚀 Starting Deployment for $APP_NAME..."
-
-echo "📥 Fetching latest image from Registry: $IMAGE_URL"
+echo "📥 Fetching latest image: $IMAGE_URL"
 docker pull "$IMAGE_URL"
 
-echo "🛑 Cleaning up existing containers..."
+echo "🛑 Cleaning up old containers..."
 docker stop "$APP_NAME" || true
 docker rm "$APP_NAME" || true
 
-echo "🚢 Running new container..."
-docker run -d \
-  --name "$APP_NAME" \
-  -p "$PORT:$PORT" \
-  "$IMAGE_URL"
-
-echo "✅ New version successfully started for $APP_NAME"
+echo "🚢 Starting new container..."
+docker run -d --name "$APP_NAME" -p 3000:3000 "$IMAGE_URL"
