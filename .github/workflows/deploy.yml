@@ -5,7 +5,7 @@ on:
     workflows: ["Build (Docker)"]
     types: [completed]
 
-# Grant permission to read the image from the registry
+# Grant permission to read the image from the GitHub Container Registry
 permissions:
   packages: read
   contents: read
@@ -15,17 +15,18 @@ jobs:
     # Only run if the build job finished with a 'success' status
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    env:
-      MIGRATION_COMMAND: "npm run migrate"
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set execute permissions
         run: chmod +x scripts/*.sh
 
-      - name: Run migrations
-        run: ${{ env.MIGRATION_COMMAND }}
+      # The "Run migrations" block was removed because your test-node 
+      # project does not have a "migrate" script in package.json.
 
       - name: Execute Deployment Script
         run: bash scripts/deploy.sh
+
+      - name: Health check
+        run: bash scripts/health-check.sh
