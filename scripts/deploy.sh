@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
+# set -e ensures the script fails-fast if a command breaks
 set -e
 
-APP_NAME="test-node"
-PORT="3000"
+APP_NAME="{{APP_NAME}}"
+PORT="{{PORT}}"
 
-echo "🚀 Deploying $APP_NAME..."
+# Generate the same registry URL used in the build step
+IMAGE_URL="ghcr.io/$(echo ${GITHUB_REPOSITORY} | tr '[A-Z]' '[a-z]'):latest"
 
-# Save current image as previous (best-effort)
-docker tag test-node:latest test-node:previous || true
+echo "🚀 Starting Deployment for $APP_NAME..."
 
-# Stop and remove existing container (if any)
+echo "📥 Fetching latest image from Registry: $IMAGE_URL"
+docker pull "$IMAGE_URL"
+
+echo "🛑 Cleaning up existing containers..."
 docker stop "$APP_NAME" || true
 docker rm "$APP_NAME" || true
 
-# Run the new container
+echo "🚢 Running new container..."
 docker run -d \
   --name "$APP_NAME" \
   -p "$PORT:$PORT" \
-  test-node:latest
+  "$IMAGE_URL"
 
-echo "✅ New version started for $APP_NAME"
+echo "✅ New version successfully started for $APP_NAME"
