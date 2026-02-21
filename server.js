@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 // Root route
 app.get('/', (req, res) => {
     res.status(200).json({ 
-        message: "Hello from Monolith!", 
+        message: "Hello from Monolith!!", 
         status: "Healthy" 
     });
 });
